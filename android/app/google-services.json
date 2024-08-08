@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1075930549187",
+    "project_id": "myseelocalapp",
+    "storage_bucket": "myseelocalapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075930549187:android:55c979b991d0a49f828b76",
+        "android_client_info": {
+          "package_name": "com.SeeLocals.SeeLocal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwwL7LqbB3yvU-RgTJX97NSNsd1jHSAZQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

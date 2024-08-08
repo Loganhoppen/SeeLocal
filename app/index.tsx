@@ -1,90 +1,72 @@
 import React, { useState } from 'react';
-import { View, ImageBackground, Modal, TextInput, Button, Alert, TouchableOpacity, StyleSheet, Text } from 'react-native';
-import { useRouter } from "expo-router";
-
-
-const image = { uri: "https://docs.expo.dev/static/images/tutorial/background-image.png" };
+import { View, TextInput, TouchableOpacity, StyleSheet, Text, Image, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+import Constants from 'expo-constants';
 
 const LoginForm = () => {
-  const [isModelValue, setModelValue] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
 
-  const toggleModel = () => {
-    setModelValue(!isModelValue);
-  };
+  const apiUrl = Constants.expoConfig?.extra?.apiUrl;
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    console.log('Input field focused');
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    console.log('Input field lost focus');
-  };
-
-  const handleLogin = () => {
-    if (email === '' || password === '') {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
 
-    if (email === 'test' && password === 'test') {
-         
-    
-      router.push("/auth");
-    } else {
-      Alert.alert('Error', 'Invalid credentials.');
-    }
+    try {
+      console.log(`Sending request to: ${apiUrl}/users/login`);
+      const payload = { email, password };
+      console.log(`Payload: ${JSON.stringify(payload)}`);
 
-   
+      const response = await axios.post(`${apiUrl}/users/login`, payload);
+
+      console.log('Response data:', response.data);
+
+      if (response.data) {
+        const { token } = response.data;
+        Alert.alert('Success', 'Login successful');
+        router.push('/auth');
+      } else {
+        throw new Error('Unexpected response from server');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Server error');
+    }
   };
 
   return (
-    <ImageBackground blurRadius={6} source={image} style={styles.image}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Login</Text>
-        <TextInput
-          style={[styles.input, isFocused && styles.focusInput]}
-          placeholder="Email"
-          placeholderTextColor="blue"
-          value={email}
-          onChangeText={setEmail}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          keyboardType="default"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={[styles.input, isFocused && styles.focusInput]}
-          placeholder="Password"
-          placeholderTextColor="green"
-          value={password}
-          onChangeText={setPassword}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          secureTextEntry
-        />
-        <Button title="Login" onPress={handleLogin} />
-        
-        <View>
-          <TouchableOpacity style={styles.touchable} onPressIn={toggleModel}>
-            <Text style={{ textAlign: 'center', color: "black", fontSize: 13 }}>SignUp</Text>
-          </TouchableOpacity>
-        </View>
-        
-        <Modal visible={isModelValue} animationType="fade" onRequestClose={toggleModel}>
-          <View style={styles.modelContent}>
-            <Text>SignUp User Registration Form</Text>
-            <TextInput placeholder='Enter Name' />
-            <Button title="Close" onPress={toggleModel} />
-          </View>
-        </Modal>
-      </View>
-    </ImageBackground>
+    <View style={styles.container}>
+      <Image source={require('../assets/images/7.png')} style={styles.logo} />
+      <Text style={styles.signInText}>Sign In</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Email Address"
+        placeholderTextColor="#A9A9A9"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        placeholderTextColor="#A9A9A9"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Log in</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.registerButton} onPress={() => router.push('/register')}>
+        <Text style={styles.registerButtonText}>Register</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -93,42 +75,54 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 20,
+    backgroundColor: 'white',
   },
-  modelContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
+  logo: {
+    width: 250,
+    height: 250,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  signInText: {
+    fontSize: 24,
+    textAlign: 'center',
+    color: '#000',
+    marginTop: 20,
+    marginBottom: 10,
   },
   input: {
-    height: 40,
-    width: '100%',
-    borderColor: 'gray',
+    height: 50,
+    borderColor: '#D3D3D3',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 10,
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    marginBottom: 10,
+    fontSize: 16,
+    backgroundColor: '#F5F5F5',
   },
-  focusInput: {
-    borderColor: 'red',
-  },
-  title: {
-    fontSize: 60,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
-  image: {
-    flex: 1,
-    resizeMode: 'cover',
+  loginButton: {
+    backgroundColor: '#FFD700',
+    borderRadius: 25,
+    height: 50,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  touchable: {
-    backgroundColor: "burlywood",
-    fontSize: 55,
-    borderColor: "aqua",
-    borderWidth: 2,
-    borderRadius: 3,
-    padding: 10,
-    marginTop: 20,
+  loginButtonText: {
+    fontSize: 18,
+    color: '#000',
+  },
+  registerButton: {
+    backgroundColor: '#4285F4',
+    borderRadius: 25,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  registerButtonText: {
+    fontSize: 18,
+    color: '#fff',
   },
 });
 
